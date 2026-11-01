@@ -1,9 +1,10 @@
 #pragma once
 #include <mutex>
+#include <shared_mutex>
 #include <thread>
 #include <cstddef>
+#include <cstdint>
 #include "nn/types.h"
-#include <shared_mutex>
 
 namespace nn::os
 {
@@ -16,19 +17,28 @@ namespace nn::os
         void* argument = nullptr;
         const char* name = "";
         int priority = 0;
-        uint64_t id = 0; 
-    };
-
-    struct ReaderWriterLockType {
-        std::shared_mutex handle;
+        uint64_t id = 0;
     };
 
     struct MutexType {
         std::recursive_mutex handle;
     };
 
+    struct ReaderWriterLockType {
+        std::shared_mutex handle;
+    };
+
     struct Tick {
         int64_t value = 0;
+    };
+
+    struct MemoryInfo {
+        size_t totalAvailableMemorySize = 0;
+        size_t totalUsedMemorySize = 0;
+        size_t totalMemoryHeapSize = 0;
+        size_t allocatedMemoryHeapSize = 0;
+        size_t totalThreadStackSize = 0;
+        int threadCount = 0;
     };
 
     // --- Threads
@@ -41,6 +51,8 @@ namespace nn::os
     void DestroyThread(ThreadType* thread);
     void SleepThread(TimeSpan time);
     void YieldThread();
+    ThreadType* GetCurrentThread();
+    uint64_t GetThreadId(const ThreadType* thread);
     void SetThreadName(ThreadType* thread, const char* name);
     const char* GetThreadNamePointer(const ThreadType* thread);
     int ChangeThreadPriority(ThreadType* thread, int priority);
@@ -49,10 +61,7 @@ namespace nn::os
     uint64_t GetThreadAvailableCoreMask();
     int GetCurrentCoreNumber();
     void GetCurrentStackInfo(uintptr_t* outStack, size_t* outSize);
-    ThreadType* GetCurrentThread();
-    uint64_t GetThreadId(const ThreadType* thread);
-    
-    
+
     // --- Tick
     Tick GetSystemTick();
     int64_t GetSystemTickFrequency();
@@ -72,4 +81,10 @@ namespace nn::os
     void ReleaseWriteLock(ReaderWriterLockType* lock);
     void AcquireReadLock(ReaderWriterLockType* lock);
     void ReleaseReadLock(ReaderWriterLockType* lock);
+
+    // --- Misc
+    void GenerateRandomBytes(void* buffer, size_t size);
+    Result SetMemoryHeapSize(size_t size);
+    Result AllocateMemoryBlock(uintptr_t* outAddress, size_t size);
+    void QueryMemoryInfo(MemoryInfo* info);
 }
