@@ -5,7 +5,8 @@ using namespace std;
 void SayHello(void* argument)
 {
     (void)argument;
-    cout << "Hello from the thread NINTENDO" << endl;
+    cout << "I am: " << nn::os::GetThreadNamePointer(nn::os::GetCurrentThread()) << endl;
+    cout << "Thread id: " << nn::os::GetThreadId(nn::os::GetCurrentThread()) << endl;
 }
 
 
@@ -14,6 +15,9 @@ int main()
     cout << "Booting up YKW1 PC EDITION" << endl;
     nn::os::ThreadType testThread;
     nn::os::CreateThread(&testThread, SayHello, nullptr, nullptr, 0, 0);
+    nn::os::SetThreadName(&testThread, "TestThread");
+    nn::os::SetThreadName(nn::os::GetCurrentThread(), "MainThread");
+    cout << "I am: " << nn::os::GetThreadNamePointer(nn::os::GetCurrentThread()) << endl;
     nn::os::StartThread(&testThread);
     cout << "Hello from main" << endl;
     nn::os::WaitThread(&testThread);

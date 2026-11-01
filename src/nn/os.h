@@ -13,6 +13,9 @@ namespace nn::os
         std::thread handle;
         ThreadFunction function = nullptr;
         void* argument = nullptr;
+        const char* name = "";
+        int priority = 0;
+        uint64_t id = 0; 
     };
 
     struct MutexType {
@@ -24,13 +27,28 @@ namespace nn::os
     };
 
     
+    // --- Threads
     Result CreateThread(ThreadType* thread, ThreadFunction function, void* argument,
-    void* stack, size_t stackSize, int priority);
+                        void* stack, size_t stackSize, int priority);
+    Result CreateThread(ThreadType* thread, ThreadFunction function, void* argument,
+                        void* stack, size_t stackSize, int priority, int idealCore);
     void StartThread(ThreadType* thread);
     void WaitThread(ThreadType* thread);
     void DestroyThread(ThreadType* thread);
     void SleepThread(TimeSpan time);
-
+    void YieldThread();
+    void SetThreadName(ThreadType* thread, const char* name);
+    const char* GetThreadNamePointer(const ThreadType* thread);
+    int ChangeThreadPriority(ThreadType* thread, int priority);
+    int GetThreadPriority(const ThreadType* thread);
+    void SetThreadCoreMask(ThreadType* thread, int idealCore, uint64_t affinityMask);
+    uint64_t GetThreadAvailableCoreMask();
+    int GetCurrentCoreNumber();
+    void GetCurrentStackInfo(uintptr_t* outStack, size_t* outSize);
+    ThreadType* GetCurrentThread();
+    uint64_t GetThreadId(const ThreadType* thread);
+    
+    
     // --- Tick
     Tick GetSystemTick();
     int64_t GetSystemTickFrequency();
