@@ -1,0 +1,12 @@
+# Fichiers du jeu : JAMAIS dans git
+romfs/
+exefs/
+*.fa
+*.nso
+*.nca
+*.xci
+*.nsp
+*.yw
+
+# Fichiers produits par la compilation
+build/
