@@ -1,6 +1,6 @@
 #include "nn/os.h"
 #include <chrono>
-#include <atomic>          
+#include <atomic>       
 
 namespace nn::os {
 
@@ -8,15 +8,16 @@ thread_local ThreadType* g_CurrentThread = nullptr;
 ThreadType g_MainThread;
 std::atomic<uint64_t> g_NextThreadId{1};  
 
+
+// Mutex
 void InitializeMutex(MutexType* mutex, bool recursive, int lockLevel)
 {
-    // std::recursive_mutex is ready as soon as it exists: nothing to do.
+    
     (void)mutex; (void)recursive; (void)lockLevel;
 }
 
 void FinalizeMutex(MutexType* mutex)
 {
-    // Nothing to free: the mutex is destroyed with its MutexType.
     (void)mutex;
 }
 
@@ -34,6 +35,39 @@ void UnlockMutex(MutexType* mutex)
 {
     mutex->handle.unlock();
 }
+
+
+// Shared Mutex
+void InitializeReaderWriterLock(ReaderWriterLockType* lock)
+{
+    (void) lock;
+}
+
+void FinalizeReaderWriterLock(ReaderWriterLockType* lock)
+{
+    (void) lock;
+}
+
+void AcquireWriteLock(ReaderWriterLockType* lock)
+{
+    lock->handle.lock();
+}
+void ReleaseWriteLock(ReaderWriterLockType* lock)
+{
+    lock->handle.unlock();
+}
+void AcquireReadLock(ReaderWriterLockType* lock)
+{
+    lock->handle.lock_shared();
+}
+void ReleaseReadLock(ReaderWriterLockType* lock)
+{
+    lock->handle.unlock_shared();
+}
+
+
+
+
 
 Result CreateThread(ThreadType* thread, ThreadFunction function, void* argument,
 void* stack, size_t stackSize, int priority)

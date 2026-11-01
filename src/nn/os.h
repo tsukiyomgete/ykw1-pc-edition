@@ -3,6 +3,7 @@
 #include <thread>
 #include <cstddef>
 #include "nn/types.h"
+#include <shared_mutex>
 
 namespace nn::os
 {
@@ -18,6 +19,10 @@ namespace nn::os
         uint64_t id = 0; 
     };
 
+    struct ReaderWriterLockType {
+        std::shared_mutex handle;
+    };
+
     struct MutexType {
         std::recursive_mutex handle;
     };
@@ -26,7 +31,6 @@ namespace nn::os
         int64_t value = 0;
     };
 
-    
     // --- Threads
     Result CreateThread(ThreadType* thread, ThreadFunction function, void* argument,
                         void* stack, size_t stackSize, int priority);
@@ -59,4 +63,12 @@ namespace nn::os
     void LockMutex(MutexType* mutex);
     bool TryLockMutex(MutexType* mutex);
     void UnlockMutex(MutexType* mutex);
+
+    // --- Reader/writer lock
+    void InitializeReaderWriterLock(ReaderWriterLockType* lock);
+    void FinalizeReaderWriterLock(ReaderWriterLockType* lock);
+    void AcquireWriteLock(ReaderWriterLockType* lock);
+    void ReleaseWriteLock(ReaderWriterLockType* lock);
+    void AcquireReadLock(ReaderWriterLockType* lock);
+    void ReleaseReadLock(ReaderWriterLockType* lock);
 }
