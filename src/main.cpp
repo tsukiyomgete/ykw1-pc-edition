@@ -20,7 +20,10 @@ int main()
     nn::os::DestroyThread(&testThread);
     cout << "Thread finished" << endl;
 
-
+    nn::os::Tick start = nn::os::GetSystemTick();
+    nn::os::SleepThread(nn::TimeSpan::FromMilliSeconds(500));
+    nn::os::Tick end = nn::os::GetSystemTick();
+    cout << "Ticks: " << (end.value - start.value) << endl;
 
 
 

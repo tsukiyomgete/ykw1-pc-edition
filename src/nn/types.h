@@ -12,7 +12,7 @@ struct Result {
 // A duration, stored in nanoseconds.
 struct TimeSpan {
     int64_t nanoSeconds = 0;
-    static TimeSpan FromMilliSeconds(int64_t ms) { return { ms * 1000000 }; }
+    static TimeSpan FromMilliSeconds(int64_t ms) { return { ms * 1'000'000 }; }
 };
 
 }

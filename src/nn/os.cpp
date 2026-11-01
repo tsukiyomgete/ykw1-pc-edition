@@ -30,7 +30,6 @@ void UnlockMutex(MutexType* mutex)
     mutex->handle.unlock();
 }
 
-
 Result CreateThread(ThreadType* thread, ThreadFunction function, void* argument,
 void* stack, size_t stackSize, int priority)
 {
@@ -58,6 +57,21 @@ void DestroyThread(ThreadType* thread)
 void SleepThread(TimeSpan time)
 {
     std::this_thread::sleep_for(std::chrono::nanoseconds(time.nanoSeconds));
+}
+
+Tick GetSystemTick()
+{
+    std::chrono::steady_clock::duration now = std::chrono::steady_clock::now().time_since_epoch();
+    int64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now).count();
+
+    Tick result;                 
+    result.value = ns * 12 / 625;  
+    return result;
+}
+
+int64_t GetSystemTickFrequency()
+{
+    return 19200000;
 }
 
 }
