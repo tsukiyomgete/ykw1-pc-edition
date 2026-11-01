@@ -56,6 +56,7 @@ namespace nn::os
     // --- Tick
     Tick GetSystemTick();
     int64_t GetSystemTickFrequency();
+    TimeSpan ConvertToTimeSpan(Tick tick);
 
     // --- Mutex
     void InitializeMutex(MutexType* mutex, bool recursive, int lockLevel);

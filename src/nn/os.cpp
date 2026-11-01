@@ -67,7 +67,7 @@ void ReleaseReadLock(ReaderWriterLockType* lock)
 
 
 
-
+// Thread
 
 Result CreateThread(ThreadType* thread, ThreadFunction function, void* argument,
 void* stack, size_t stackSize, int priority)
@@ -174,6 +174,8 @@ void GetCurrentStackInfo(uintptr_t* outStack, size_t* outSize)
     *outSize = 0;
 }
 
+// Tick
+
 Tick GetSystemTick()
 {
     std::chrono::steady_clock::duration now = std::chrono::steady_clock::now().time_since_epoch();
@@ -187,6 +189,13 @@ Tick GetSystemTick()
 int64_t GetSystemTickFrequency()
 {
     return 19200000;
+}
+
+TimeSpan ConvertToTimeSpan(Tick tick)
+{
+    TimeSpan result;
+    result.nanoSeconds = (tick.value * 625)/12;
+    return result;
 }
 
 }
