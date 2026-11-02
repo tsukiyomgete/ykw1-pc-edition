@@ -9,8 +9,8 @@ namespace nn::os
 {
     // --- Types
     enum EventClearMode {
-        EventClearMode_ManualClear = 0,   // stays signaled until ClearEvent
-        EventClearMode_AutoClear = 1,     // a successful wait clears it
+        EventClearMode_ManualClear = 0,   
+        EventClearMode_AutoClear = 1,     
     };
 
     // Shared engine of the three kinds of events.
@@ -23,7 +23,7 @@ namespace nn::os
 
     struct EventType       { EventCore core; };
     struct LightEventType  { EventCore core; };
-    struct SystemEventType { EventCore core; };   // created by other SDK parts (vsync, input...)
+    struct SystemEventType { EventCore core; };   
 
     struct MultiWaitType;
     struct MultiWaitHolderType {
