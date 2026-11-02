@@ -31,7 +31,7 @@ void ThreadEntry(ThreadType* thread)
 {
     g_CurrentThread = thread;
     thread->function(thread->argument);
-    detail::RunTlsDestructors();   // clean this thread's TLS values (see tls.cpp)
+    detail::RunTlsDestructors(); //nettoie les valeurs TLS du thread (voir tls.cpp)
 }
 
 ThreadType* GetCurrentThread()
@@ -101,18 +101,18 @@ int GetCurrentCoreNumber()
 
 void SetThreadCoreMask(ThreadType* thread, int idealCore, uint64_t affinityMask)
 {
-    // Windows chooses the cores itself: nothing to do.
+    //Windows choisit les coeurs tout seul : rien a faire
     (void)thread; (void)idealCore; (void)affinityMask;
 }
 
 uint64_t GetThreadAvailableCoreMask()
 {
-    return 0b1111;   // 4 bits set = cores 0, 1, 2 and 3 are available
+    return 0b1111; //4 bits a 1 = coeurs 0, 1, 2 et 3 disponibles
 }
 
 void GetCurrentStackInfo(uintptr_t* outStack, size_t* outSize)
 {
-    *outStack = 0;   // write 0 into the place outStack points to
+    *outStack = 0; //on ecrit 0 la ou pointe outStack
     *outSize = 0;
 }
 

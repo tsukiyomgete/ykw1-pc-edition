@@ -3,21 +3,22 @@
 #include <mutex>
 #include <string>
 
+//Outils internes a nn::fs (le jeu ne s'en sert pas)
 namespace nn::fs::detail
 {
-    // "rom:/data/x.bin" -> real path on the PC (uses the mount table)
+    //"rom:/data/x.bin" -> vrai chemin sur le PC
     std::string ResolvePath(const char* path);
 
-    // Folder used for the save data (exists even before MountSaveData)
-    const std::string& SaveRoot();
+    //Dossier des sauvegardes
+    std::string GetSaveRoot();
 
-    // What a FileHandle points to
+    //Ce que contient un FileHandle
     struct FileObject {
         FILE* file = nullptr;
         std::string path;
-        std::mutex lock;   
+        std::mutex lock;
     };
 
-    // Flushes every file still open (used by CommitSaveData)
+    //Vide le tampon de tous les fichiers ouverts (pour CommitSaveData)
     void FlushAllFiles();
 }

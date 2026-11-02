@@ -5,12 +5,18 @@ namespace nn::hid {
 
 int GetVibrationDeviceHandles(VibrationDeviceHandle* outHandles, int count, const NpadIdType& id, NpadStyleSet style)
 {
-    // Two motors, like a Pro Controller: 0 = left, 1 = right
+    //2 moteurs comme une Pro Controller : 0 = gauche, 1 = droit
     (void)style;
-    int n = count < 2 ? count : 2;
-    for (int i = 0; i < n; i++)
-        outHandles[i].value = (id << 8) | static_cast<uint32_t>(i);
-    return n;
+    int number = 2;
+    if (count < 2)
+    {
+        number = count;
+    }
+    for (int i = 0; i < number; i++)
+    {
+        outHandles[i].value = (id << 8) | i;
+    }
+    return number;
 }
 
 void GetVibrationDeviceInfo(VibrationDeviceInfo* outInfo, const VibrationDeviceHandle& handle)
@@ -26,7 +32,7 @@ void InitializeVibrationDevice(const VibrationDeviceHandle& handle)
 
 void SendVibrationValue(const VibrationDeviceHandle& handle, const VibrationValue& value)
 {
-    // A PC gamepad has one low motor and one high motor
+    //Une manette PC a un moteur grave et un moteur aigu
     (void)handle;
     detail::Rumble(value.amplitudeLow, value.amplitudeHigh);
 }

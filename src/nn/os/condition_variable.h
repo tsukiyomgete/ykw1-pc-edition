@@ -12,7 +12,7 @@ namespace nn::os
     };
 
     struct ConditionVariableType {
-        std::condition_variable_any handle;   // "_any": works with our recursive_mutex
+        std::condition_variable_any handle; //"_any" pour marcher avec notre recursive_mutex
     };
 
     // --- Condition variables

@@ -3,8 +3,15 @@
 
 namespace nn::os {
 
-void InitializeConditionVariable(ConditionVariableType* cv) { (void)cv; }
-void FinalizeConditionVariable(ConditionVariableType* cv) { (void)cv; }
+void InitializeConditionVariable(ConditionVariableType* cv)
+{
+    (void)cv;
+}
+
+void FinalizeConditionVariable(ConditionVariableType* cv)
+{
+    (void)cv;
+}
 
 void SignalConditionVariable(ConditionVariableType* cv)
 {
@@ -18,14 +25,17 @@ void BroadcastConditionVariable(ConditionVariableType* cv)
 
 void WaitConditionVariable(ConditionVariableType* cv, MutexType* mutex)
 {
-    // The game has already locked the mutex: wait() unlocks it while sleeping, relocks after.
+    //Le jeu a deja verrouille le mutex : wait() le relache pendant l'attente puis le reprend
     cv->handle.wait(mutex->handle);
 }
 
 ConditionVariableStatus TimedWaitConditionVariable(ConditionVariableType* cv, MutexType* mutex, TimeSpan timeout)
 {
-    if (cv->handle.wait_for(mutex->handle, std::chrono::nanoseconds(timeout.nanoSeconds)) == std::cv_status::timeout)
+    std::cv_status status = cv->handle.wait_for(mutex->handle, std::chrono::nanoseconds(timeout.nanoSeconds));
+    if (status == std::cv_status::timeout)
+    {
         return ConditionVariableStatus_Timeout;
+    }
     return ConditionVariableStatus_Success;
 }
 

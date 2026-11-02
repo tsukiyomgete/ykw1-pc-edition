@@ -1,5 +1,5 @@
 #pragma once
-// Umbrella header for nn::os: the game only needs #include "nn/os.h".
+//En-tete parapluie : le jeu a juste besoin de #include "nn/os.h"
 #include "nn/os/thread.h"
 #include "nn/os/mutex.h"
 #include "nn/os/tick.h"

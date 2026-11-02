@@ -10,7 +10,7 @@ namespace nn::hid
 
     struct VibrationDeviceInfo {
         uint32_t deviceType = 0;
-        uint32_t position = 0;   // 0 = left, 1 = right
+        uint32_t position = 0; //0 = gauche, 1 = droite
     };
 
     struct VibrationValue {

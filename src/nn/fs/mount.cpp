@@ -8,63 +8,58 @@
 
 namespace nn::fs {
 
-namespace detail {
-
-// Where the Switch drives live on the PC (can be changed with YKW1_ROM_ROOT / YKW1_SAVE_ROOT)
-static std::string FromEnv(const char* name, const char* fallback)
-{
-    const char* value = std::getenv(name);
-    return (value != nullptr && value[0] != 0) ? value : fallback;
-}
-
-static const std::string ROM_ROOT  = FromEnv("YKW1_ROM_ROOT", "C:/Users/Tsukiyom/Documents/Modding/YKW1/romfs");
-static const std::string SAVE_ROOT = FromEnv("YKW1_SAVE_ROOT", "save");
-
-// Drive name ("rom", "save"...) -> folder on the PC
+//Table des lecteurs : "rom" -> dossier sur le PC
 static std::map<std::string, std::string> g_Mounts;
-static std::mutex g_MountsLock;   // the game loads files from several threads
+static std::mutex g_MountsLock;
 
-const std::string& SaveRoot()
+//Dossier du RomFS (on peut le changer avec la variable YKW1_ROM_ROOT)
+static std::string GetRomRoot()
 {
-    return SAVE_ROOT;
+    const char* value = std::getenv("YKW1_ROM_ROOT");
+    if (value != nullptr && value[0] != 0)
+    {
+        return value;
+    }
+    return "C:/Users/Tsukiyom/Documents/Modding/YKW1/romfs";
 }
 
-std::string ResolvePath(const char* path)
+//Dossier des sauvegardes (variable YKW1_SAVE_ROOT)
+std::string detail::GetSaveRoot()
+{
+    const char* value = std::getenv("YKW1_SAVE_ROOT");
+    if (value != nullptr && value[0] != 0)
+    {
+        return value;
+    }
+    return "save";
+}
+
+std::string detail::ResolvePath(const char* path)
 {
     std::string full = path;
     size_t colon = full.find(':');
     if (colon == std::string::npos)
+    {
         return "";
-
-    std::string drive = full.substr(0, colon);
-    std::string rest  = full.substr(colon + 1);   // "/data/x.bin"
+    }
+    std::string drive = full.substr(0, colon); //"rom"
+    std::string rest = full.substr(colon + 1); //"/data/x.bin"
     if (rest.empty() || rest[0] != '/')
+    {
         rest = "/" + rest;
+    }
 
     std::lock_guard<std::mutex> guard(g_MountsLock);
-    auto it = g_Mounts.find(drive);
-    if (it == g_Mounts.end())
-        return "";
-    return it->second + rest;
-}
-
-static void Mount(const char* name, const std::string& folder)
-{
-    std::lock_guard<std::mutex> guard(g_MountsLock);
-    g_Mounts[name] = folder;
-}
-
-static void Forget(const char* name)
-{
-    std::lock_guard<std::mutex> guard(g_MountsLock);
-    g_Mounts.erase(name);
-}
-
+    if (g_Mounts.count(drive) == 0)
+    {
+        return ""; //lecteur pas monte
+    }
+    return g_Mounts[drive] + rest;
 }
 
 Result QueryMountRomCacheSize(size_t* outSize)
 {
-    *outSize = 0;   // no cache needed on PC
+    *outSize = 0; //pas besoin de cache sur PC
     return Result{};
 }
 
@@ -77,28 +72,35 @@ Result QueryMountAddOnContentCacheSize(size_t* outSize, int index)
 
 Result MountRom(const char* name, void* cache, size_t cacheSize)
 {
-    (void)cache; (void)cacheSize;
-    detail::Mount(name, detail::ROM_ROOT);
+    (void)cache;
+    (void)cacheSize;
+    std::lock_guard<std::mutex> guard(g_MountsLock);
+    g_Mounts[name] = GetRomRoot();
     return Result{};
 }
 
 Result MountSaveData(const char* name, const nn::account::Uid& user)
 {
-    (void)user;   // one player on PC
-    detail::Mount(name, detail::SAVE_ROOT);
+    (void)user; //un seul joueur sur PC
+    std::lock_guard<std::mutex> guard(g_MountsLock);
+    g_Mounts[name] = detail::GetSaveRoot();
     return Result{};
 }
 
 Result MountAddOnContent(const char* name, int index, void* cache, size_t cacheSize)
 {
-    // No additional content on PC
-    (void)name; (void)index; (void)cache; (void)cacheSize;
+    //Pas de contenu additionnel sur PC
+    (void)name;
+    (void)index;
+    (void)cache;
+    (void)cacheSize;
     return ResultPathNotFound;
 }
 
 void Unmount(const char* name)
 {
-    detail::Forget(name);
+    std::lock_guard<std::mutex> guard(g_MountsLock);
+    g_Mounts.erase(name);
 }
 
 }

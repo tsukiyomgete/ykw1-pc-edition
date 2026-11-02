@@ -1,5 +1,5 @@
 #pragma once
-// Thread local storage: one value per thread for each slot.
+//Thread local storage : une valeur par thread pour chaque case
 #include <cstdint>
 #include "nn/types.h"
 
@@ -20,7 +20,7 @@ namespace nn::os
 
     namespace detail
     {
-        // Called by ThreadEntry when a thread ends: runs the TLS destructors.
+        //Appelee par ThreadEntry a la fin d'un thread
         void RunTlsDestructors();
     }
 }

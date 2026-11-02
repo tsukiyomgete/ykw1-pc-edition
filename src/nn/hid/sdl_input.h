@@ -1,7 +1,7 @@
 #pragma once
 #include "nn/hid/npad.h"
 
-// Internal: the PC side of nn::hid (SDL2 gamepad + keyboard)
+//Interne : le cote PC de nn::hid (manette et clavier avec SDL2)
 namespace nn::hid::detail
 {
     void InitializeSdl();

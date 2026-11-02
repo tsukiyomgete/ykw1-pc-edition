@@ -9,7 +9,7 @@ namespace nn::os
         int64_t value = 0;
     };
 
-    // --- Tick (19.2 MHz clock, like the Switch)
+    // --- Tick (horloge a 19,2 MHz comme la Switch)
     Tick GetSystemTick();
     int64_t GetSystemTickFrequency();
     TimeSpan ConvertToTimeSpan(Tick tick);

@@ -50,30 +50,31 @@ void ReadInput(NpadCommonState* outState)
     SDL_PumpEvents();
     SDL_GameControllerUpdate();
     OpenPadIfNeeded();
+
     if (g_Pad != nullptr)
     {
         //Les boutons
-        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_A)) 
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_A))
         {
             outState->buttons.Set(NpadButton::A); //A
         }
-        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_B)) 
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_B))
         {
             outState->buttons.Set(NpadButton::B); //B
         }
-        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_X)) 
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_X))
         {
             outState->buttons.Set(NpadButton::X); //X
         }
-        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_Y)) 
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_Y))
         {
             outState->buttons.Set(NpadButton::Y); //Y
         }
-        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER)) 
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
         {
             outState->buttons.Set(NpadButton::L); //L
         }
-        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER)) 
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
         {
             outState->buttons.Set(NpadButton::R); //R
         }
@@ -85,50 +86,256 @@ void ReadInput(NpadCommonState* outState)
         {
             outState->buttons.Set(NpadButton::ZR); //ZR
         }
-        if(SDL_GameControllerGetButton(g_Pad,SDL_CONTROLLER_BUTTON_START))
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_START))
         {
             outState->buttons.Set(NpadButton::Plus); //+
         }
-        if(SDL_GameControllerGetButton(g_Pad,SDL_CONTROLLER_BUTTON_BACK))
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_BACK))
         {
             outState->buttons.Set(NpadButton::Minus); //-
         }
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_LEFTSTICK))
+        {
+            outState->buttons.Set(NpadButton::StickL); //clic stick gauche
+        }
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_RIGHTSTICK))
+        {
+            outState->buttons.Set(NpadButton::StickR); //clic stick droit
+        }
+
+        //La croix
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+        {
+            outState->buttons.Set(NpadButton::Left);
+        }
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_DPAD_UP))
+        {
+            outState->buttons.Set(NpadButton::Up);
+        }
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+        {
+            outState->buttons.Set(NpadButton::Right);
+        }
+        if (SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+        {
+            outState->buttons.Set(NpadButton::Down);
+        }
+
         //Les sticks
-        //- Les stick Gauches
-        outState->analogStickL.x = SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_LEFTX);
+        //SDL donne de -32768 a 32767 avec le bas en positif
+        //La Switch veut de -32767 a 32767 avec le haut en positif
+        int deadZone = 4000;
+
+        //- Stick gauche, horizontal
+        int leftX = SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_LEFTX);
+        if (leftX < -AnalogStickMax)
+        {
+            leftX = -AnalogStickMax;
+        }
+        if (leftX > -deadZone && leftX < deadZone)
+        {
+            leftX = 0;
+        }
+        outState->analogStickL.x = leftX;
+
+        //- Stick gauche, vertical (on inverse)
+        int leftY = SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_LEFTY);
+        if (leftY < -AnalogStickMax)
+        {
+            leftY = -AnalogStickMax;
+        }
+        if (leftY > -deadZone && leftY < deadZone)
+        {
+            leftY = 0;
+        }
+        outState->analogStickL.y = -leftY;
+
+        //- Stick droit, horizontal
+        int rightX = SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_RIGHTX);
+        if (rightX < -AnalogStickMax)
+        {
+            rightX = -AnalogStickMax;
+        }
+        if (rightX > -deadZone && rightX < deadZone)
+        {
+            rightX = 0;
+        }
+        outState->analogStickR.x = rightX;
+
+        //- Stick droit, vertical (on inverse)
+        int rightY = SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_RIGHTY);
+        if (rightY < -AnalogStickMax)
+        {
+            rightY = -AnalogStickMax;
+        }
+        if (rightY > -deadZone && rightY < deadZone)
+        {
+            rightY = 0;
+        }
+        outState->analogStickR.y = -rightY;
     }
 
-    // DONE 1 - buttons, BY NAME (the button marked A is the Switch A)
-    //   if (g_Pad != nullptr): for each button, SDL_GameControllerGetButton(g_Pad, SDL_CONTROLLER_BUTTON_A)
-    //   returns 1 when pressed -> outState->buttons.Set(NpadButton::A)
-    //   SDL names: A B X Y LEFTSTICK RIGHTSTICK LEFTSHOULDER (= L) RIGHTSHOULDER (= R)
-    //              START (= Plus) BACK (= Minus) DPAD_LEFT DPAD_UP DPAD_RIGHT DPAD_DOWN
-    //   ZL / ZR are analog triggers on PC: SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_TRIGGERLEFT)
-    //   goes from 0 to 32767 -> pressed above half.
+    //Le clavier (marche seulement quand la fenetre du jeu existera)
+    //Les scancodes sont des positions de touches : W A S D = Z Q S D sur un clavier AZERTY
+    const Uint8* keys = SDL_GetKeyboardState(nullptr);
+    if (keys[SDL_SCANCODE_RETURN])
+    {
+        outState->buttons.Set(NpadButton::A); //Entree
+    }
+    if (keys[SDL_SCANCODE_BACKSPACE])
+    {
+        outState->buttons.Set(NpadButton::B); //Retour arriere
+    }
+    if (keys[SDL_SCANCODE_F])
+    {
+        outState->buttons.Set(NpadButton::X);
+    }
+    if (keys[SDL_SCANCODE_R])
+    {
+        outState->buttons.Set(NpadButton::Y);
+    }
+    if (keys[SDL_SCANCODE_Q])
+    {
+        outState->buttons.Set(NpadButton::L); //A en AZERTY
+    }
+    if (keys[SDL_SCANCODE_E])
+    {
+        outState->buttons.Set(NpadButton::R);
+    }
+    if (keys[SDL_SCANCODE_1])
+    {
+        outState->buttons.Set(NpadButton::ZL);
+    }
+    if (keys[SDL_SCANCODE_3])
+    {
+        outState->buttons.Set(NpadButton::ZR);
+    }
+    if (keys[SDL_SCANCODE_ESCAPE])
+    {
+        outState->buttons.Set(NpadButton::Plus);
+    }
+    if (keys[SDL_SCANCODE_TAB])
+    {
+        outState->buttons.Set(NpadButton::Minus);
+    }
+    if (keys[SDL_SCANCODE_LEFT])
+    {
+        outState->buttons.Set(NpadButton::Left);
+    }
+    if (keys[SDL_SCANCODE_UP])
+    {
+        outState->buttons.Set(NpadButton::Up);
+    }
+    if (keys[SDL_SCANCODE_RIGHT])
+    {
+        outState->buttons.Set(NpadButton::Right);
+    }
+    if (keys[SDL_SCANCODE_DOWN])
+    {
+        outState->buttons.Set(NpadButton::Down);
+    }
+    //- Stick gauche au clavier : Z Q S D
+    if (keys[SDL_SCANCODE_A])
+    {
+        outState->analogStickL.x = -AnalogStickMax;
+    }
+    if (keys[SDL_SCANCODE_D])
+    {
+        outState->analogStickL.x = AnalogStickMax;
+    }
+    if (keys[SDL_SCANCODE_W])
+    {
+        outState->analogStickL.y = AnalogStickMax;
+    }
+    if (keys[SDL_SCANCODE_S])
+    {
+        outState->analogStickL.y = -AnalogStickMax;
+    }
+    //- Stick droit au clavier : I J K L
+    if (keys[SDL_SCANCODE_J])
+    {
+        outState->analogStickR.x = -AnalogStickMax;
+    }
+    if (keys[SDL_SCANCODE_L])
+    {
+        outState->analogStickR.x = AnalogStickMax;
+    }
+    if (keys[SDL_SCANCODE_I])
+    {
+        outState->analogStickR.y = AnalogStickMax;
+    }
+    if (keys[SDL_SCANCODE_K])
+    {
+        outState->analogStickR.y = -AnalogStickMax;
+    }
 
-    // TODO 2 - sticks
-    //   SDL_GameControllerGetAxis(g_Pad, SDL_CONTROLLER_AXIS_LEFTX / LEFTY / RIGHTX / RIGHTY)
-    //   SDL gives -32768..32767 with DOWN = positive.
-    //   The Switch wants -32767..32767 (AnalogStickMax) with UP = positive:
-    //   clamp -32768 to -32767, and invert y. Add a small dead zone (about 4000) so a resting stick reads 0.
-    //   -> outState->analogStickL.x / .y and outState->analogStickR.x / .y
-
-    // TODO 3 - stick directions as buttons (menus use them)
-    //   NpadButton::StickLLeft / StickLUp / StickLRight / StickLDown (same for StickR):
-    //   set when the stick is past half (AnalogStickMax / 2) in that direction.
-
-    // TODO 4 (later, needs the window from nn::vi) - keyboard
-    //   const Uint8* keys = SDL_GetKeyboardState(nullptr); keys[SDL_SCANCODE_RETURN] is 1 when pressed.
-    //   Scancodes are key POSITIONS: SDL_SCANCODE_W is the Z key on an AZERTY keyboard.
+    //Les directions des sticks comme des boutons (les menus s'en servent)
+    //On compte une direction quand le stick depasse la moitie
+    int half = AnalogStickMax / 2;
+    if (outState->analogStickL.x < -half)
+    {
+        outState->buttons.Set(NpadButton::StickLLeft);
+    }
+    if (outState->analogStickL.x > half)
+    {
+        outState->buttons.Set(NpadButton::StickLRight);
+    }
+    if (outState->analogStickL.y > half)
+    {
+        outState->buttons.Set(NpadButton::StickLUp);
+    }
+    if (outState->analogStickL.y < -half)
+    {
+        outState->buttons.Set(NpadButton::StickLDown);
+    }
+    if (outState->analogStickR.x < -half)
+    {
+        outState->buttons.Set(NpadButton::StickRLeft);
+    }
+    if (outState->analogStickR.x > half)
+    {
+        outState->buttons.Set(NpadButton::StickRRight);
+    }
+    if (outState->analogStickR.y > half)
+    {
+        outState->buttons.Set(NpadButton::StickRUp);
+    }
+    if (outState->analogStickR.y < -half)
+    {
+        outState->buttons.Set(NpadButton::StickRDown);
+    }
 }
 
 void Rumble(float low, float high)
 {
-    // TODO 5 (optional) - vibration
-    //   low and high go from 0.0 to 1.0; SDL wants 0..0xFFFF for each motor:
-    //   SDL_GameControllerRumble(g_Pad, lowMotor, highMotor, durationMs)
-    //   The game sends a value every frame, so a duration of about 100 ms is enough.
-    (void)low; (void)high;
+    std::lock_guard<std::mutex> guard(g_Lock);
+    if (g_Pad == nullptr)
+    {
+        return;
+    }
+
+    //Le jeu donne une force entre 0.0 et 1.0, SDL veut un nombre entre 0 et 65535
+    if (low < 0.0f)
+    {
+        low = 0.0f;
+    }
+    if (low > 1.0f)
+    {
+        low = 1.0f;
+    }
+    if (high < 0.0f)
+    {
+        high = 0.0f;
+    }
+    if (high > 1.0f)
+    {
+        high = 1.0f;
+    }
+    Uint16 lowMotor = (Uint16)(low * 65535);
+    Uint16 highMotor = (Uint16)(high * 65535);
+
+    //Le jeu renvoie une valeur a chaque image, donc 100 ms suffisent
+    SDL_GameControllerRumble(g_Pad, lowMotor, highMotor, 100);
 }
 
 }

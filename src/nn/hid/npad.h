@@ -34,8 +34,8 @@ namespace nn::hid
 
     constexpr int32_t AnalogStickMax = 0x7FFF;
     struct AnalogStickState {
-        int32_t x = 0;   // -AnalogStickMax (left) .. +AnalogStickMax (right)
-        int32_t y = 0;   // -AnalogStickMax (down) .. +AnalogStickMax (up)
+        int32_t x = 0; //gauche = negatif, droite = positif
+        int32_t y = 0; //bas = negatif, haut = positif
     };
 
     struct NpadCommonState {
@@ -45,9 +45,9 @@ namespace nn::hid
         AnalogStickState analogStickR;
         NpadAttributesSet attributes;
     };
-    struct NpadFullKeyState  : NpadCommonState {};   // Pro Controller
-    struct NpadHandheldState : NpadCommonState {};   // console in handheld mode
-    struct NpadJoyDualState  : NpadCommonState {};   // two Joy-Con
+    struct NpadFullKeyState  : NpadCommonState {}; //Pro Controller
+    struct NpadHandheldState : NpadCommonState {}; //console en mode portable
+    struct NpadJoyDualState  : NpadCommonState {}; //deux Joy-Con
 
     void InitializeNpad();
     void SetSupportedNpadStyleSet(NpadStyleSet style);

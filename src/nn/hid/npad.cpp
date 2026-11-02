@@ -10,35 +10,65 @@ void InitializeNpad()
 
 void SetSupportedNpadStyleSet(NpadStyleSet style)
 {
-    (void)style;   // we accept every style
+    (void)style; //on accepte tous les styles
 }
 
 void SetSupportedNpadIdType(const NpadIdType* ids, size_t count)
 {
-    (void)ids; (void)count;
+    (void)ids;
+    (void)count;
 }
 
 NpadStyleSet GetNpadStyleSet(const NpadIdType& id)
 {
-    // One player on PC: player 1 is a "Pro Controller", the handheld slot is the console itself
+    //Un seul joueur sur PC : le joueur 1 est une Pro Controller, Handheld est la console
     NpadStyleSet style;
     if (id == NpadId::No1)
+    {
         style.Set(NpadStyle::FullKey);
-    else if (id == NpadId::Handheld)
+    }
+    if (id == NpadId::Handheld)
+    {
         style.Set(NpadStyle::Handheld);
+    }
     return style;
 }
 
-static void Read(NpadCommonState* outState, const NpadIdType& id)
+//Les 3 versions de GetNpadState font la meme chose
+void GetNpadState(NpadFullKeyState* outState, const NpadIdType& id)
 {
     if (id == NpadId::No1 || id == NpadId::Handheld)
+    {
         detail::ReadInput(outState);
+    }
     else
-        *outState = NpadCommonState{};   // other players: not connected
+    {
+        *outState = NpadFullKeyState{}; //les autres joueurs ne sont pas branches
+    }
 }
 
-void GetNpadState(NpadFullKeyState* outState, const NpadIdType& id)  { Read(outState, id); }
-void GetNpadState(NpadHandheldState* outState, const NpadIdType& id) { Read(outState, id); }
-void GetNpadState(NpadJoyDualState* outState, const NpadIdType& id)  { Read(outState, id); }
+void GetNpadState(NpadHandheldState* outState, const NpadIdType& id)
+{
+    if (id == NpadId::No1 || id == NpadId::Handheld)
+    {
+        detail::ReadInput(outState);
+    }
+    else
+    {
+        *outState = NpadHandheldState{};
+    }
+}
+
+void GetNpadState(NpadJoyDualState* outState, const NpadIdType& id)
+{
+    if (id == NpadId::No1 || id == NpadId::Handheld)
+    {
+        detail::ReadInput(outState);
+    }
+    else
+    {
+        *outState = NpadJoyDualState{};
+    }
+}
 
 }

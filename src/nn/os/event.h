@@ -1,5 +1,5 @@
 #pragma once
-// Events (normal, light, system) and multi-wait.
+//Events (normaux, light, system) et multi-wait
 #include <condition_variable>
 #include <deque>
 #include <mutex>
@@ -13,7 +13,7 @@ namespace nn::os
         EventClearMode_AutoClear = 1,     
     };
 
-    // Shared engine of the three kinds of events.
+    //Moteur commun aux 3 sortes d'events
     struct EventCore {
         std::mutex lock;
         std::condition_variable changed;
@@ -44,7 +44,7 @@ namespace nn::os
     bool TimedWaitEvent(EventType* event, TimeSpan timeout);
     void ClearEvent(EventType* event);
 
-    // --- Light events (same behaviour, lighter on Switch)
+    // --- Light events (meme fonctionnement, plus legers sur Switch)
     void InitializeLightEvent(LightEventType* event, bool signaled, EventClearMode clearMode);
     void FinalizeLightEvent(LightEventType* event);
     void SignalLightEvent(LightEventType* event);
@@ -53,7 +53,7 @@ namespace nn::os
     bool TimedWaitLightEvent(LightEventType* event, TimeSpan timeout);
     void ClearLightEvent(LightEventType* event);
 
-    // --- System events (the game only waits on them; our own layers create and signal them)
+    // --- System events (le jeu ne fait que les attendre)
     Result CreateSystemEvent(SystemEventType* event, EventClearMode clearMode, bool interProcess);
     void DestroySystemEvent(SystemEventType* event);
     void SignalSystemEvent(SystemEventType* event);
@@ -62,7 +62,7 @@ namespace nn::os
     bool TimedWaitSystemEvent(SystemEventType* event, TimeSpan timeout);
     void ClearSystemEvent(SystemEventType* event);
 
-    // --- Multi-wait (wait until ONE of several events is signaled)
+    // --- Multi-wait (attendre qu'UN des events soit signale)
     void InitializeMultiWait(MultiWaitType* multiWait);
     void FinalizeMultiWait(MultiWaitType* multiWait);
     void InitializeMultiWaitHolder(MultiWaitHolderType* holder, EventType* event);

@@ -1,24 +1,20 @@
 #include "nn/os/tls.h"
-#include <array>
 #include <cstddef>
 #include <mutex>
 
 namespace nn::os {
 
-namespace {
-
-constexpr size_t TlsSlotCount = 64;
-std::mutex g_TlsLock;
-std::array<bool, TlsSlotCount> g_TlsUsed{};
-std::array<TlsDestructor, TlsSlotCount> g_TlsDestructors{};
-thread_local std::array<uintptr_t, TlsSlotCount> t_TlsValues{};
-
-} // anonymous namespace
+//64 cases ; chaque thread a sa propre copie des valeurs (thread_local)
+const int TLS_SLOT_COUNT = 64;
+static std::mutex g_TlsLock;
+static bool g_TlsUsed[TLS_SLOT_COUNT] = {};
+static TlsDestructor g_TlsDestructors[TLS_SLOT_COUNT] = {};
+thread_local uintptr_t t_TlsValues[TLS_SLOT_COUNT] = {};
 
 Result AllocateTlsSlot(TlsSlot* outSlot, TlsDestructor destructor)
 {
     std::lock_guard<std::mutex> guard(g_TlsLock);
-    for (uint32_t i = 0; i < TlsSlotCount; i++)
+    for (int i = 0; i < TLS_SLOT_COUNT; i++)
     {
         if (!g_TlsUsed[i])
         {
@@ -28,7 +24,7 @@ Result AllocateTlsSlot(TlsSlot* outSlot, TlsDestructor destructor)
             return Result{};
         }
     }
-    return Result{ 1 };   // no free slot left
+    return Result{ 1 }; //plus de case libre
 }
 
 Result SdkAllocateTlsSlot(TlsSlot* outSlot, TlsDestructor destructor)
@@ -55,7 +51,7 @@ uintptr_t GetTlsValue(TlsSlot slot)
 
 void detail::RunTlsDestructors()
 {
-    for (size_t i = 0; i < TlsSlotCount; i++)
+    for (int i = 0; i < TLS_SLOT_COUNT; i++)
     {
         TlsDestructor destructor;
         {
@@ -63,7 +59,9 @@ void detail::RunTlsDestructors()
             destructor = g_TlsDestructors[i];
         }
         if (destructor != nullptr && t_TlsValues[i] != 0)
+        {
             destructor(t_TlsValues[i]);
+        }
         t_TlsValues[i] = 0;
     }
 }

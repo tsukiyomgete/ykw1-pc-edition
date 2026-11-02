@@ -29,7 +29,7 @@ void UnlockMutex(MutexType* mutex)
 }
 
 
-// Shared Mutex
+//Verrou lecteurs/ecrivains
 void InitializeReaderWriterLock(ReaderWriterLockType* lock)
 {
     (void) lock;

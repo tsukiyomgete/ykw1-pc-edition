@@ -4,7 +4,7 @@ namespace nn::hid {
 
 void InitializeTouchScreen()
 {
-    // No touch screen on PC (the mouse could play this role later)
+    //Pas d'ecran tactile sur PC (la souris pourra le remplacer plus tard)
 }
 
 }
