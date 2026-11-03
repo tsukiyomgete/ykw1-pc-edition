@@ -4,6 +4,8 @@
 #include "nn/fs/detail.h"
 #include "nn/hid.h"
 #include "nn/vi.h"
+#include "nn/audio.h"
+#include <cmath>
 using namespace std;
 
 void SayHello(void* argument)
@@ -73,8 +75,33 @@ int main()
     nn::vi::OpenDefaultDisplay(&display);
     nn::vi::Layer* layer;
     nn::vi::CreateLayer(&layer, display, 1280, 720);
+
+    //Test du son : un bip de 1 seconde (la note La, 440 Hz)
+    nn::audio::AudioOutParameter audioParameter;
+    nn::audio::InitializeAudioOutParameter(&audioParameter);
+    nn::audio::AudioOut audioOut;
+    nn::os::SystemEvent audioEvent;
+    if (nn::audio::OpenDefaultAudioOut(&audioOut, &audioEvent, audioParameter).IsSuccess())
+    {
+        static int16_t beep[48000 * 2]; //1 seconde, 2 canaux
+        for (int i = 0; i < 48000; i++)
+        {
+            int16_t sample = (int16_t)(6000 * sin(2 * 3.14159265 * 440 * i / 48000.0));
+            beep[i * 2] = sample;     //gauche
+            beep[i * 2 + 1] = sample; //droite
+        }
+        nn::audio::AudioOutBuffer beepBuffer;
+        nn::audio::SetAudioOutBufferInfo(&beepBuffer, beep, sizeof(beep), sizeof(beep));
+        nn::audio::AppendAudioOutBuffer(&audioOut, &beepBuffer);
+        nn::audio::StartAudioOut(&audioOut);
+        cout << "Beep..." << endl;
+        nn::os::WaitSystemEvent(&audioEvent.base); //attend la fin du bip
+        cout << "Beep finished" << endl;
+        nn::audio::StopAudioOut(&audioOut);
+        nn::audio::CloseAudioOut(&audioOut);
+    }
     
-    //Test de la manette : on lit 600 fois toutes les 16 ms (environ 10 secondes)
+    
     nn::hid::InitializeNpad();
     cout << "Gamepad test (10 s): press buttons, move the sticks" << endl;
     string names[16] = { "A", "B", "X", "Y", "StickL", "StickR", "L", "R", "ZL", "ZR",
@@ -95,7 +122,7 @@ int main()
                     cout << " " << names[i];
                 }
             }
-            cout << "   stick L (" << pad.analogStickL.x << ", " << pad.analogStickL.y << ")" << endl;
+            cout << "   stick (" << pad.analogStickL.x << ", " << pad.analogStickL.y << ")" << endl;
             previous = now;
         }
         nn::os::SleepThread(nn::TimeSpan::FromMilliSeconds(16));

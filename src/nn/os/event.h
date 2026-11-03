@@ -24,6 +24,7 @@ namespace nn::os
     struct EventType       { EventCore core; };
     struct LightEventType  { EventCore core; };
     struct SystemEventType { EventCore core; };   
+    struct SystemEvent     { SystemEventType base; };   //version "classe" de SystemEventType
 
     struct MultiWaitType;
     struct MultiWaitHolderType {

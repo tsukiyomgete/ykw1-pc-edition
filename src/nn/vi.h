@@ -24,14 +24,14 @@ namespace nn::vi
         ScalingMode_PreserveAspectRatio,
     };
 
-    void   Initialize();
-    void   Finalize();
+    void Initialize();
+    void Finalize();
 
     Result OpenDefaultDisplay(Display** outDisplay);
-    void   CloseDisplay(Display* display);
+    void CloseDisplay(Display* display);
 
     Result CreateLayer(Layer** outLayer, Display* display, int width, int height);
-    void   DestroyLayer(Layer* layer);
+    void DestroyLayer(Layer* layer);
     Result SetLayerScalingMode(Layer* layer, ScalingMode mode);
     Result GetNativeWindow(void** outWindow, Layer* layer);
 
