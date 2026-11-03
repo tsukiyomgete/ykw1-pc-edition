@@ -3,6 +3,7 @@
 #include "nn/fs.h"
 #include "nn/fs/detail.h"
 #include "nn/hid.h"
+#include "nn/vi.h"
 using namespace std;
 
 void SayHello(void* argument)
@@ -67,6 +68,12 @@ int main()
     nn::fs::Unmount("rom");
     cout << "After unmount: [" << nn::fs::detail::ResolvePath("rom:/yw1_a.fa") << "]" << endl;
 
+    nn::vi::Initialize();
+    nn::vi::Display* display;
+    nn::vi::OpenDefaultDisplay(&display);
+    nn::vi::Layer* layer;
+    nn::vi::CreateLayer(&layer, display, 1280, 720);
+    
     //Test de la manette : on lit 600 fois toutes les 16 ms (environ 10 secondes)
     nn::hid::InitializeNpad();
     cout << "Gamepad test (10 s): press buttons, move the sticks" << endl;
